@@ -5,10 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import study.springbootdeveloper.domain.Article;
 
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-public class AddArticleRequest {
+public class UpdateArticleRequest {
 
     private String title;
     private String content;
