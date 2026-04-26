@@ -1,0 +1,40 @@
+package study.springbootdeveloper.service;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import study.springbootdeveloper.domain.User;
+import study.springbootdeveloper.dto.AddUserRequest;
+import study.springbootdeveloper.repository.UserRepository;
+
+@Service
+@RequiredArgsConstructor
+public class UserService {
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public User save(AddUserRequest request) {
+        User user = User.builder()
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .build();
+
+        return userRepository.save(user);
+    }
+
+    public User login(String email, String password) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("유저 없음"));
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new RuntimeException("비밀번호 틀림");
+        }
+
+        return user;
+    }
+
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email).get();
+    }
+}
