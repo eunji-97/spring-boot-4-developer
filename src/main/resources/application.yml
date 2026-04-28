@@ -15,3 +15,13 @@ spring:
       enabled: true
 
     defer-datasource-initialization: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+
+            scope:
+              - email
+              - profile

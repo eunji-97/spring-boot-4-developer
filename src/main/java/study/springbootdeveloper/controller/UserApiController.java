@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,16 +15,16 @@ import study.springbootdeveloper.config.JwtTokenProvider;
 import study.springbootdeveloper.domain.User;
 import study.springbootdeveloper.dto.AddUserRequest;
 import study.springbootdeveloper.dto.LoginRequest;
+import study.springbootdeveloper.dto.LoginResponse;
+import study.springbootdeveloper.service.RefreshTokenService;
 import study.springbootdeveloper.service.UserService;
-
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
 public class UserApiController {
     private final UserService userService;
+    private final RefreshTokenService refreshTokenService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/api/user")
     public ResponseEntity<User> signup(@RequestBody AddUserRequest request) {
@@ -34,16 +33,17 @@ public class UserApiController {
     }
 
     @PostMapping("/api/login")
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+        try {
+            User user = userService.login(request.getEmail(), request.getPassword());
+            String accessToken = jwtTokenProvider.createToken(user.getEmail());
+            String refreshToken = jwtTokenProvider.createRefreshToken(user.getEmail());
+            refreshTokenService.saveOrUpdate(user.getId(), refreshToken);
 
-    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest request) {
-
-        User user = userService.findByEmail(request.getEmail());
-        if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            return ResponseEntity.ok(new LoginResponse(accessToken, refreshToken));
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        String token = jwtTokenProvider.createToken(user.getEmail());
-        return ResponseEntity.ok(Map.of("accessToken", token));
-
     }
 
     @GetMapping("/api/logout")
