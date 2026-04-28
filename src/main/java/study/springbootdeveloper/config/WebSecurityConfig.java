@@ -35,10 +35,11 @@ public class WebSecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // ✅ preflight 허용
-                        .requestMatchers("/api/login", "/api/user").permitAll()
+                        .requestMatchers("/api/login", "/api/user", "/api/token", "/h2-console/**").permitAll()
                         .requestMatchers("/api/articles/**").hasRole("USER")
                         .anyRequest().authenticated()
                 )
+                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .addFilterBefore(jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class)
                 .build();

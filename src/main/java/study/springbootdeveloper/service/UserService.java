@@ -24,10 +24,10 @@ public class UserService {
 
     public User login(String email, String password) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("유저 없음"));
+                .orElseThrow(() -> new IllegalArgumentException("user not found"));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("비밀번호 틀림");
+            throw new IllegalArgumentException("password mismatch");
         }
 
         return user;
@@ -35,6 +35,12 @@ public class UserService {
 
 
     public User findByEmail(String email) {
-        return userRepository.findByEmail(email).get();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("user not found"));
+    }
+
+    public User findById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("user not found"));
     }
 }
