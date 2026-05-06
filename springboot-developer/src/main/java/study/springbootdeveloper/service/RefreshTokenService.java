@@ -22,4 +22,9 @@ public class RefreshTokenService {
                 .map(token -> token.update(refreshToken))
                 .orElseGet(() -> repository.save(new RefreshToken(userId, refreshToken)));
     }
+
+    public void deleteByUserId(Long userId) {
+        repository.findByUserId(userId)
+                .ifPresent(repository::delete);
+    }
 }

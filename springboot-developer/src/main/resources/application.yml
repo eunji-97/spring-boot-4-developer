@@ -7,9 +7,6 @@ spring:
       hibernate:
         format_sql: true
 
-  datasource:
-    url: jdbc:h2:mem:testdb
-    username: sa
   h2:
     console:
       enabled: true
@@ -21,7 +18,10 @@ spring:
       client:
         registration:
           google:
-
+            redirect-uri: "{baseUrl}/api/auth/google/callback"
             scope:
               - email
               - profile
+
+app:
+  frontend-redirect-uri: "http://localhost:5173/article"
